@@ -1,46 +1,61 @@
 # Intent-to-Transaction Lab
 
-**Independent, read-only, synthetic grocery-shopping research prototype** for possible Swiggy Builders Club outreach. Not an official Swiggy project, not affiliated with Swiggy, not a Swiggy application or live Instamart integration, and not evidence of a defect in Swiggy software.
+**Independent experimental shopping-intent verifier for possible Swiggy Builders Club collaboration.** This is **not an official Swiggy project**, is not affiliated with Swiggy, has no real product catalogue or live Instamart connection, and does not allege any defect in Swiggy.
 
-**Research question:** When stock, fees, labels, quantity or substitutions change, can an explicit user-intent contract flag invalid *proposed* baskets before a human reviews them?
+## Try the read-only fictional demonstration
 
-## Run in five minutes
+**Live:** https://swiggy-intent-lab.vercel.app/
 
-Requirements: Node.js 20+ (CI uses Node 22); no install, API keys, account, Swiggy credentials or npm dependencies.
+The interactive prototype accepts bounded requests for vegetarian pasta, biryani or oats, constructs a cart from fictional product data, and checks quantities, stock, listed ingredients, delivered budget, and approval requirements. Inspect intentionally tricky cases below. No real orders, checkout, passwords, payments, personal accounts or Swiggy tokens.
+
+**Actual recorded headless-browser walkthrough:** https://github.com/sushan5140/Swiggy/actions/runs/36094645141/artifacts/10847330748 (GitHub Actions ZIP containing WebM video and full-page cover image). There is no audio voiceover. The hosted demo was independently checked for HTTP 200 and for a fictional pasta request yielding READY_FOR_REVIEW with delivered total ₹330, checkout_allowed=false.
+
+## Local run (Node.js 20+, no install)
 
 ```bash
 git clone https://github.com/sushan5140/Swiggy.git
 cd Swiggy
-npm run verify   # fixture check + tests + local synthetic benchmark + audit
-npm run demo     # browse http://127.0.0.1:3000
+npm run verify             # fixture integrity + automated tests + reproducible local experiments
+npm run demo               # http://127.0.0.1:3000
+npm run benchmark:pipeline # 18 fictional requests, deliberately simple controls + independent oracle
 ```
 
-Select any of the 11 deliberately fictional adversarial cases, compare naive B0, budget-only B1-lite and the explicit T verifier, and inspect a proposed-cart status and reasoning. The interface and local API are read-only. It cannot add to cart, pay, or order.
+`vercel.json`, `public/` and `api/*.js` provide the corresponding publicly hosted read-only frontend/functions on Vercel. The Vercel project is a manually deployed code snapshot and is **not guaranteed to automatically track new GitHub commits**.
+
+## What is implemented
+
+| Stage | Content | Evidence |
+|---|---|---|
+| Days 1–7 | Research question, 11 frozen scenarios, deterministic verifier, baseline, local demo and audit | `docs/DAY_01_RESEARCH_BRIEF.md`, `docs/DAY_02_TO_07_AUDIT.md` |
+| Phase 1 | Multi-meal structured intent extraction → catalogue selection → quantity/fee-aware proposed basket → verifier | `lib/grocery.mjs`, `tests/grocery.test.mjs` |
+| Phase 2 | 18-case deterministic comparison and optional paired **real LLM** comparison adapter | `scripts/run_pipeline_benchmark.mjs`, `lib/llm.mjs` |
+| Phase 3 | Independent oracle and regression/property checks on unknown data, extra products, store fees and consent | `lib/oracle.mjs`, `tests/llm.test.mjs` |
+| Phase 4 | Responsive public read-only browser demo and locally tested hosted-style APIs | `public/`, `demo/`, `api/`, `tests/hosted-api.test.mjs` |
+| Phase 5 | Genuine browser recording, draft technical submission and research report | `.github/workflows/record-demo.yml`, `docs/PHASE_2_TO_5_READOUT.md`, `docs/BUILDERS_CLUB_SUBMISSION.md` |
+
+**Reported 18-case synthetic pipeline sanity check:** simplistic baseline offered 18 proposed carts, 14 independently flagged invalid; budget-only offered 10, 6 invalid; verified selector offered 12 and none invalid under the separate fixture oracle. Six were blocked or abstained. This is **not** a Swiggy, LLM, real-user or production study; these deliberately simple controls and fictional cases establish only local software behavior, not comparative business value.
+
+## Actual LLM comparison requires an authorized inference key
+
+No provider API calls or expenses occur in CI or public demo. The scripted comparison is the three-way controlled flow requested:
+
+- A: ordinarily prompted actual LLM.
+- B: actual LLM with explicit shopping requirements.
+- C: **the identical output from B**, additionally gated by our deterministic verifier.
 
 ```bash
-npm test
-npm run benchmark  # generates ignored reports/benchmark.json and reports/benchmark.md
-npm run audit      # generates ignored reports/audit.json
+npm run benchmark:llm
+# Without flags: honest NOT_RUN / no network calls.
+# On your own computer, with explicit consent for model costs:
+export OPENROUTER_API_KEY=YOUR_PRIVATE_KEY
+export I_AUTHORIZE_LLM_COSTS=YES
+npm run benchmark:llm:execute
 ```
 
-CI checks these on push/PR and uploads generated reports as the **synthetic-prototype-evidence** artifact.
+The provider key stays in your shell environment and must never be pasted into code, committed to GitHub or placed in a public frontend. This code does not currently demonstrate empirical LLM superiority.
 
-## What is actually implemented
+## User consent and research boundaries
 
-| Stage | Deliverable |
-|---|---|
-| Day 1 | Locked intent, assumptions, hard/soft constraints, 11 golden handcrafted scenarios |
-| Day 2 | B0 naive proposal evaluation + B1-lite budget-only comparator; neither represents Swiggy |
-| Day 3 | Deterministic read-only contract verifier, reason codes, budget/stock/quantity/consent gates |
-| Day 4 | 11-case frozen benchmark + 256 deterministic adversarial perturbations, regression tests |
-| Day 5 | Local browser demo with case switching, verdicts, bill, ingredients and reasons |
-| Day 6 | Reproducible demo walkthrough and draft outreach packet; no recorded video or actual outreach yet |
-| Day 7 | Automated contract/fixture/synthetic-only audit, CI report, limitations and handoff |
+Fictional product labels do **not** establish real allergen/cross-contact safety. No price, product, payment method, stock or customer address is verified against Swiggy. Even a READY_FOR_REVIEW cart is not an order, and all cart/checkout mutations are unavailable. Real access requires Swiggy's formal staging review, correct OAuth/consent and fresh explicit checkout confirmation under their [published docs](https://mcp.swiggy.com/builders/docs/reference/instamart/checkout/).
 
-Read: [Day 1 brief](docs/DAY_01_RESEARCH_BRIEF.md) · [Days 2–7 audit](docs/DAY_02_TO_07_AUDIT.md) · [Demo walkthrough](docs/DEMO_AND_VIDEO_SCRIPT.md) · [Access prerequisites](docs/SWIGGY_ACCESS_CHECKLIST.md) · [Outreach draft](docs/OUTREACH_DRAFT.md).
-
-## What is NOT implemented
-
-No conversational LLM baseline B1, live product search or Swiggy staging/production integration, user studies, actual price quotes, product certification, verified allergen safety, transactions, payments, saved customer data or observed increase in conversion. No general benchmark superiority should be inferred from human-authored fixture labels or a deliberately weak B0.
-
-**Do not apply for a live integration by presenting the local benchmark as evidence of Swiggy production failures.** Obtain appropriate staging access and revalidate the official API contracts before any integration. Explicit human confirmation is mandatory before checkout per Swiggy's [official reference](https://mcp.swiggy.com/builders/docs/reference/instamart/checkout/).
+**Submission is drafted but NOT SENT.** The program asks for a concrete real-user use case and a playable video link. See [submission packet](docs/BUILDERS_CLUB_SUBMISSION.md), [full limitations and metrics](docs/PHASE_2_TO_5_READOUT.md), and [onboarding checklist](docs/SWIGGY_ACCESS_CHECKLIST.md).
