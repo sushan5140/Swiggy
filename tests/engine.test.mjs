@@ -85,7 +85,7 @@ test("256 seeded perturbations fail closed when prices/labels/stock vary",()=>{
   let state=20260925;
   const rnd=()=>{state=(Math.imul(1664525,state)+1013904223)>>>0;return state/4294967296;};
   for(let i=0;i<256;i++){
-    const c=materialize();const target=c.snapshot.products.find(p=>p.sku===c.proposal.items[Math.floor(rnd()*3)].sku);
+    const c=materialize();const selectedSku=c.proposal.items[Math.floor(rnd()*3)].sku;const target=c.snapshot.products.find(p=>p.sku===selectedSku);
     switch(Math.floor(rnd()*4)){
       case 0:target.in_stock=false;break;
       case 1:target.ingredient_label_status="unknown";break;
