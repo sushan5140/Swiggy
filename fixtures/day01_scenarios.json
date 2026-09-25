@@ -1,0 +1,359 @@
+{
+  "dataset": "day01_intent_to_transaction_synthetic_cases",
+  "version": "0.1.0",
+  "note": "Entirely fictional catalogue, prices, user, stocks and quote times. Golden outcomes specify desired behavior; they are not observed system results.",
+  "snapshot": {
+    "observed_at": "2026-09-25T09:00:00+05:30",
+    "evaluation_at": "2026-09-25T09:02:00+05:30",
+    "max_age_minutes": 5,
+    "address_id": "mock_address_01",
+    "currency": "INR",
+    "products": [
+      {
+        "sku": "mock_pasta_500g",
+        "name": "Dry wheat pasta",
+        "role": "pasta",
+        "pack_g": 500,
+        "price_inr": 110,
+        "store": "mock_store_A",
+        "in_stock": true,
+        "vegetarian": true,
+        "ingredient_label_status": "known",
+        "listed_peanuts": false
+      },
+      {
+        "sku": "mock_sauce_500g",
+        "name": "Tomato sauce",
+        "role": "tomato_sauce",
+        "pack_g": 500,
+        "price_inr": 125,
+        "store": "mock_store_A",
+        "in_stock": true,
+        "vegetarian": true,
+        "ingredient_label_status": "known",
+        "listed_peanuts": false
+      },
+      {
+        "sku": "mock_veg_250g",
+        "name": "Mixed vegetables",
+        "role": "vegetables",
+        "pack_g": 250,
+        "price_inr": 55,
+        "store": "mock_store_A",
+        "in_stock": true,
+        "vegetarian": true,
+        "ingredient_label_status": "known",
+        "listed_peanuts": false
+      },
+      {
+        "sku": "mock_rice_500g",
+        "name": "Dry rice",
+        "role": "rice",
+        "pack_g": 500,
+        "price_inr": 70,
+        "store": "mock_store_A",
+        "in_stock": true,
+        "vegetarian": true,
+        "ingredient_label_status": "known",
+        "listed_peanuts": false
+      },
+      {
+        "sku": "mock_zucchini_250g",
+        "name": "Zucchini",
+        "role": "vegetables",
+        "pack_g": 250,
+        "price_inr": 65,
+        "store": "mock_store_A",
+        "in_stock": true,
+        "vegetarian": true,
+        "ingredient_label_status": "known",
+        "listed_peanuts": false
+      },
+      {
+        "sku": "mock_pasta_250g",
+        "name": "Dry wheat pasta small pack",
+        "role": "pasta",
+        "pack_g": 250,
+        "price_inr": 75,
+        "store": "mock_store_A",
+        "in_stock": true,
+        "vegetarian": true,
+        "ingredient_label_status": "known",
+        "listed_peanuts": false
+      }
+    ],
+    "fees_inr": {
+      "delivery": 35,
+      "handling": 5,
+      "tax": 0,
+      "second_store_delivery": 0
+    },
+    "valid_discounts_inr": 0
+  },
+  "intent": {
+    "user_statement": "Ingredients for vegetarian tomato pasta for four tonight; no listed peanut ingredients; salt and oil already owned; delivered bill <= INR 600; request permission for swaps and checkout.",
+    "cuisine": "vegetarian tomato pasta",
+    "servings": 4,
+    "budget_delivered_inr": 600,
+    "pantry_owned": [
+      "salt",
+      "cooking oil"
+    ],
+    "listed_ingredient_exclusions": [
+      "peanut"
+    ],
+    "allergen_safety_claim_allowed": false,
+    "required_roles_min_grams": {
+      "pasta": 320,
+      "tomato_sauce": 400,
+      "vegetables": 200
+    },
+    "substitutions_require_explicit_approval": true,
+    "checkout_requires_fresh_explicit_confirmation": true,
+    "has_explicit_delivery_deadline": false
+  },
+  "default_proposal": {
+    "items": [
+      {
+        "sku": "mock_pasta_500g",
+        "packs": 1
+      },
+      {
+        "sku": "mock_sauce_500g",
+        "packs": 1
+      },
+      {
+        "sku": "mock_veg_250g",
+        "packs": 1
+      }
+    ],
+    "substitutions": [],
+    "user_decision": "undecided",
+    "order_confirmation": false
+  },
+  "cases": [
+    {
+      "id": "S01_valid_basket",
+      "changes": {},
+      "expected": {
+        "decision": "READY_FOR_REVIEW",
+        "reasons": [],
+        "delivered_total_inr": 330
+      },
+      "why": "Three in-stock ingredients meet role quantities. Review is not order placement."
+    },
+    {
+      "id": "S02_wrong_meal_replacement",
+      "changes": {
+        "proposal_items": [
+          {
+            "sku": "mock_rice_500g",
+            "packs": 1
+          },
+          {
+            "sku": "mock_sauce_500g",
+            "packs": 1
+          },
+          {
+            "sku": "mock_veg_250g",
+            "packs": 1
+          }
+        ]
+      },
+      "expected": {
+        "decision": "BLOCKED",
+        "reasons": [
+          "REQUIRED_ROLE_MISSING"
+        ],
+        "delivered_total_inr": 290
+      },
+      "why": "Rice is not dry pasta even when cheaper."
+    },
+    {
+      "id": "S03_unknown_ingredient_label",
+      "changes": {
+        "product_overrides": {
+          "mock_sauce_500g": {
+            "ingredient_label_status": "unknown"
+          }
+        }
+      },
+      "expected": {
+        "decision": "NEEDS_INFORMATION",
+        "reasons": [
+          "INGREDIENT_LABEL_UNKNOWN"
+        ],
+        "delivered_total_inr": 330
+      },
+      "why": "Cannot treat absent peanut information as verified absence."
+    },
+    {
+      "id": "S04_fees_break_budget",
+      "changes": {
+        "fees_inr": {
+          "delivery": 350,
+          "handling": 5,
+          "tax": 0,
+          "second_store_delivery": 0
+        }
+      },
+      "expected": {
+        "decision": "BLOCKED",
+        "reasons": [
+          "DELIVERED_BUDGET_EXCEEDED"
+        ],
+        "delivered_total_inr": 645
+      },
+      "why": "The INR 600 cap includes the entire payable bill."
+    },
+    {
+      "id": "S05_insufficient_pasta_quantity",
+      "changes": {
+        "proposal_items": [
+          {
+            "sku": "mock_pasta_250g",
+            "packs": 1
+          },
+          {
+            "sku": "mock_sauce_500g",
+            "packs": 1
+          },
+          {
+            "sku": "mock_veg_250g",
+            "packs": 1
+          }
+        ]
+      },
+      "expected": {
+        "decision": "BLOCKED",
+        "reasons": [
+          "REQUIRED_QUANTITY_INSUFFICIENT"
+        ],
+        "delivered_total_inr": 295
+      },
+      "why": "250 g dry pasta is below this benchmark's explicitly assumed 320 g minimum."
+    },
+    {
+      "id": "S06_swap_without_approval",
+      "changes": {
+        "proposal_items": [
+          {
+            "sku": "mock_pasta_500g",
+            "packs": 1
+          },
+          {
+            "sku": "mock_sauce_500g",
+            "packs": 1
+          },
+          {
+            "sku": "mock_zucchini_250g",
+            "packs": 1
+          }
+        ],
+        "substitutions": [
+          {
+            "original_sku": "mock_veg_250g",
+            "replacement_sku": "mock_zucchini_250g",
+            "approved": false
+          }
+        ]
+      },
+      "expected": {
+        "decision": "NEEDS_APPROVAL",
+        "reasons": [
+          "SUBSTITUTION_NOT_APPROVED"
+        ],
+        "delivered_total_inr": 340
+      },
+      "why": "Different vegetable is valid by role but explicitly requested approval remains outstanding."
+    },
+    {
+      "id": "S07_stale_inventory",
+      "changes": {
+        "observed_at": "2026-09-25T08:30:00+05:30"
+      },
+      "expected": {
+        "decision": "REFRESH_REQUIRED",
+        "reasons": [
+          "SNAPSHOT_EXPIRED"
+        ],
+        "delivered_total_inr": 330
+      },
+      "why": "A plausible proposal must be refreshed when the quote is older than the synthetic five-minute policy."
+    },
+    {
+      "id": "S08_user_declined",
+      "changes": {
+        "user_decision": "declined"
+      },
+      "expected": {
+        "decision": "STOPPED",
+        "reasons": [
+          "USER_DECLINED"
+        ],
+        "delivered_total_inr": 330
+      },
+      "why": "User refusal overrides all recommendations and prevents subsequent mutations."
+    },
+    {
+      "id": "S09_second_store_fee",
+      "changes": {
+        "product_overrides": {
+          "mock_veg_250g": {
+            "store": "mock_store_B"
+          }
+        },
+        "fees_inr": {
+          "delivery": 35,
+          "handling": 5,
+          "tax": 0,
+          "second_store_delivery": 300
+        }
+      },
+      "expected": {
+        "decision": "BLOCKED",
+        "reasons": [
+          "DELIVERED_BUDGET_EXCEEDED"
+        ],
+        "delivered_total_inr": 630
+      },
+      "why": "Second store may add fees; never silently undercount multi-store payable amount."
+    },
+    {
+      "id": "S10_item_out_of_stock",
+      "changes": {
+        "product_overrides": {
+          "mock_pasta_500g": {
+            "in_stock": false
+          }
+        }
+      },
+      "expected": {
+        "decision": "BLOCKED",
+        "reasons": [
+          "ITEM_OUT_OF_STOCK"
+        ],
+        "delivered_total_inr": 330
+      },
+      "why": "No out-of-stock SKU may be proposed as purchasable."
+    },
+    {
+      "id": "S11_peanut_ingredient",
+      "changes": {
+        "product_overrides": {
+          "mock_sauce_500g": {
+            "listed_peanuts": true
+          }
+        }
+      },
+      "expected": {
+        "decision": "BLOCKED",
+        "reasons": [
+          "EXCLUDED_INGREDIENT"
+        ],
+        "delivered_total_inr": 330
+      },
+      "why": "A product explicitly listing peanuts violates the user-specified exclusion."
+    }
+  ]
+}
