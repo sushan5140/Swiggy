@@ -1,6 +1,6 @@
 # Intent-to-Transaction Lab
 
-**Independent, read-only, synthetic grocery-shopping research prototype** for possible Swiggy Builders Club outreach. Not affiliated with Swiggy, not a Swiggy application or live Instamart integration, and not evidence of a defect in Swiggy software.
+**Independent, read-only, synthetic grocery-shopping research prototype** for possible Swiggy Builders Club outreach. Not an official Swiggy project, not affiliated with Swiggy, not a Swiggy application or live Instamart integration, and not evidence of a defect in Swiggy software.
 
 **Research question:** When stock, fees, labels, quantity or substitutions change, can an explicit user-intent contract flag invalid *proposed* baskets before a human reviews them?
 
