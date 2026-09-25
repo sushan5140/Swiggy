@@ -1,0 +1,47 @@
+name: Record independent synthetic demo
+
+on:
+  push:
+    paths:
+      - 'scripts/record_demo.mjs'
+      - 'demo/**'
+      - 'lib/**'
+      - '.github/workflows/record-demo.yml'
+  workflow_dispatch:
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser runner (CI only)
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Record actual local synthetic walkthrough
+        shell: bash
+        run: |
+          PORT=3000 npm run demo > /tmp/intent-lab-demo.log 2>&1 &
+          echo $! > /tmp/intent-lab-demo.pid
+          sleep 2
+          node scripts/record_demo.mjs
+      - name: Produce portable MP4 if FFmpeg is available
+        shell: bash
+        run: |
+          if command -v ffmpeg >/dev/null 2>&1; then
+            ffmpeg -hide_banner -loglevel error -y -i artifacts/intent-lab-screen-recording.webm -c:v libx264 -preset veryfast -crf 26 -pix_fmt yuv420p -movflags +faststart artifacts/intent-lab-screen-recording.mp4
+          fi
+      - name: Upload playable screen recording and screenshot
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: swiggy-synthetic-demo-video
+          path: |
+            artifacts/intent-lab-screen-recording.webm
+            artifacts/intent-lab-screen-recording.mp4
+            artifacts/cover.png
+          if-no-files-found: warn
