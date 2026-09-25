@@ -41,7 +41,7 @@ Run with `OPENROUTER_API_KEY`, `I_AUTHORIZE_LLM_COSTS=YES`, and `npm run benchma
 
 ## Phase 4 — deployable demo
 
-`npm run demo` serves the local UI; `public/` + `api/*.js` provide the same read-only experience for Vercel (Other framework, output `public`). There are no environment secrets or external backends needed for this fictional demo. The public demo must be tested after Vercel deployment and a real URL recorded before publication.
+`npm run demo` serves the local UI; `public/` + `api/*.js` provide the same read-only experience for Vercel (Other framework, output `public`). There are no environment secrets or external backends needed for this fictional demo. The Vercel URL was checked through the connected deployment fetch (HTML, /api/plan and /api/scenarios all returned HTTP 200). The deployment is a manually uploaded code snapshot rather than verified GitHub auto-deployment.
 
 ## Phase 5 — engineering outreach packet
 
@@ -49,8 +49,8 @@ Run with `OPENROUTER_API_KEY`, `I_AUTHORIZE_LLM_COSTS=YES`, and `npm run benchma
 - [x] Disclosed artificial fixtures/benchmark and independent oracle
 - [x] Consent/no-checkout boundaries
 - [x] Demo storyboard and browser-recording workflow
-- [ ] Actual browser recording artifact to verify in GitHub Actions
-- [ ] Public demo URL and smoke check
+- [x] Actual browser recording and cover screenshot verified: https://github.com/sushan5140/Swiggy/actions/runs/36094645141/artifacts/10847330748
+- [x] Public demo https://swiggy-intent-lab.vercel.app/ and GET /api/plan + /api/scenarios returned HTTP 200 in the authorized Vercel fetch
 - [ ] Authorized LLM benchmark with key, if claims mention LLM comparative results
 - [ ] Genuine planned end-user audience, developer contact, redirect URI, QPS estimate, video URL
 - [ ] Apply through Swiggy Builders Club; staging only upon review; no affiliation or approved credentials presently
