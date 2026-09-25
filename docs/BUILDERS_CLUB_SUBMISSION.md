@@ -18,9 +18,9 @@ Repository: https://github.com/sushan5140/Swiggy
 
 CI video workflow: https://github.com/sushan5140/Swiggy/actions/workflows/record-demo.yml
 
-Demo video: **Add exact artifact or playable uploaded link after reviewing the resulting video. Do not invent a published URL.**
+Demo video: https://github.com/sushan5140/Swiggy/actions/runs/36094645141/artifacts/10847330748 — actual 28-second headless browser recording ZIP. Before submitting, host the extracted MP4/WebM as a publicly playable Drive/Loom/YouTube unlisted link and confirm it opens without GitHub sign-in.
 
-Public browser demo: **Add verified hosted URL after deployment.**
+Public browser demo: https://swiggy-intent-lab.vercel.app/ (HTML and synthetic API HTTP 200 verified with Vercel connector).
 
 ## Technical contact and submitted integration facts
 
