@@ -56,6 +56,13 @@ test("approved explicit replacement no longer awaits swap approval",()=>{
   c.proposal.substitutions[0].approved=true;
   assert.equal(inspect(c).status,"READY_FOR_REVIEW");
 });
+test("undeclared product swap is detected even if proposer omits substitution array",()=>{
+  const c=materialize(fixture.cases.find(x=>x.id==="S06_swap_without_approval"));
+  c.proposal.substitutions=[];
+  const result=inspect(c);
+  assert.equal(result.status,"NEEDS_APPROVAL");
+  assert(result.reasons.includes("SUBSTITUTION_NOT_APPROVED"));
+});
 test("missing fee estimate prevents ready verdict",()=>{
   const c=materialize();c.snapshot.fees_inr.delivery=null;
   assert.equal(inspect(c).status,"NEEDS_INFORMATION");
