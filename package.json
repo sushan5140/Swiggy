@@ -10,7 +10,10 @@
     "benchmark": "node scripts/run_benchmark.mjs",
     "audit": "node scripts/audit.mjs",
     "demo": "node demo/server.mjs",
-    "verify": "npm run check:fixtures && npm test && npm run benchmark && npm run audit"
+    "verify": "npm run check:fixtures && npm test && npm run benchmark && npm run audit && npm run benchmark:pipeline && npm run benchmark:llm",
+    "benchmark:pipeline": "node scripts/run_pipeline_benchmark.mjs",
+    "benchmark:llm": "node scripts/run_llm_benchmark.mjs",
+    "benchmark:llm:execute": "node scripts/run_llm_benchmark.mjs --execute-llm --all"
   },
   "engines": {
     "node": ">=20"
