@@ -4,6 +4,7 @@ import {readFileSync} from "node:fs";
 import {fileURLToPath} from "node:url";
 import {fixture,materialize} from "../lib/scenario.mjs";
 import {inspect,baselineSearchAndAdd,baselineBudgetOnly} from "../lib/engine.mjs";
+import {runRequest,MOCK_CATALOGUE,VALID_REQUEST_EXAMPLES} from "../lib/grocery.mjs";
 const routes=new Map([
  ["/",["index.html","text/html; charset=utf-8"]],
  ["/app.js",["app.js","text/javascript; charset=utf-8"]],
@@ -19,6 +20,32 @@ const server=createServer((req,res)=>{
   if(req.method!=="GET"){res.writeHead(405,{"Content-Type":"application/json"});res.end(JSON.stringify({error:"READ_ONLY_LOCAL_DEMO"}));return;}
   try{
     const url=new URL(req.url,"http://localhost");
+    if(url.pathname==="/api/plan"){
+      const request=url.searchParams.get("q")??"";
+      if(request.length>600){res.writeHead(400,{"Content-Type":"application/json"});res.end(JSON.stringify({error:"REQUEST_TOO_LONG"}));return;}
+      const outcome=runRequest(request);
+      const products=new Map(MOCK_CATALOGUE.map(p=>[p.sku,p]));
+      res.writeHead(200,{"Content-Type":"application/json"});
+      res.end(JSON.stringify({
+        intent:outcome.intent??null,status:outcome.status,
+        issues:outcome.issues??[],notice:outcome.notice??"Fictional catalogue; no real product or food safety claims.",
+        basket:outcome.proposal?{items:outcome.proposal.items.map(item=>({
+          sku:item.sku,packs:item.packs,name:products.get(item.sku)?.name,
+          grams_per_pack:products.get(item.sku)?.pack_g,price_per_pack_inr:products.get(item.sku)?.price_inr,
+          role:products.get(item.sku)?.role
+        })),subtotal_inr:outcome.proposal.delivered_total_inr-Object.values(outcome.proposal.fees).reduce((a,b)=>a+b,0),
+        fees_inr:outcome.proposal.fees,delivered_total_inr:outcome.proposal.delivered_total_inr}:null,
+        verification:outcome.verification??null,checkout_allowed:false,read_only:true,
+        model:"Deterministic local plan generator, NOT an LLM or live Swiggy agent.",
+        fictional:true
+      }));
+      return;
+    }
+    if(url.pathname==="/api/examples"){
+      res.writeHead(200,{"Content-Type":"application/json"});
+      res.end(JSON.stringify({examples:VALID_REQUEST_EXAMPLES}));
+      return;
+    }
     if(url.pathname==="/api/scenarios"){
       res.writeHead(200,{"Content-Type":"application/json"});
       res.end(JSON.stringify({scenario:fixture.intent, cases:fixture.cases.map(({id,why,expected})=>({id,why,expected:expected.decision}))}));
